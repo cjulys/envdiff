@@ -62,6 +62,11 @@ func parseLine(line string) (string, string, error) {
 		return "", "", fmt.Errorf("invalid line %q: empty key", line)
 	}
 
+	// Keys must not contain spaces
+	if strings.ContainsAny(key, " \t") {
+		return "", "", fmt.Errorf("invalid line %q: key contains whitespace", line)
+	}
+
 	rawValue := strings.TrimSpace(parts[1])
 
 	// Strip inline comment
