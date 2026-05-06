@@ -94,3 +94,15 @@ func lcsLength(a, b string) int {
 	}
 	return dp[n]
 }
+
+// Filter returns only the suggestions whose Score is at or above the given
+// minimum threshold, preserving the existing order of the input slice.
+func Filter(suggestions []Suggestion, minScore int) []Suggestion {
+	out := suggestions[:0:0] // reuse type but start empty, no shared backing array
+	for _, s := range suggestions {
+		if s.Score >= minScore {
+			out = append(out, s)
+		}
+	}
+	return out
+}
