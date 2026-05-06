@@ -73,3 +73,42 @@ func WritePretty(w io.Writer, results []Result, fileA, fileB string, opts Format
 	fmt.Fprintf(w, "Summary: %d match, %d mismatch, %d missing\n",
 		summary.Matching, summary.Mismatched, summary.MissingInA+summary.MissingInB)
 }
+
+// WriteMarkdown writes a diff report in Markdown table format to w.
+// This is useful for embedding diff output in documentation or GitHub comments.
+func WriteMarkdown(w io.Writer, results []Result, fileA, fileB string) {
+	fmt.Fprintf(w, "## Diff: `%s` vs `%s`\n\n", fileA, fileB)
+	fmt.Fprintf(w, "| Status | Key | %s | %s |\n", fileA, fileB)
+	fmt.Fprintln(w, "|--------|-----|--------|--------|")
+
+	sorted := make([]Result, len(results))
+	copy(sorted, results)
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Key < sorted[j].Key
+	})
+
+	for _, r := range sorted {
+		var symbol, valA, valB string
+		switch r.Status {
+		case StatusMatch:
+			symbol = "="
+		case StatusMismatch:
+			symbol = "~"
+		case StatusMissingInB:
+			symbol = "-"
+		case StatusMissingInA:
+			symbol = "+"
+		}
+		if r.ValueA != "" {
+			valA = fmt.Sprintf("`%s`", r.ValueA)
+		}
+		if r.ValueB != "" {
+			valB = fmt.Sprintf("`%s`", r.ValueB)
+		}
+		fmt.Fprintf(w, "| %s | `%s` | %s | %s |\n", symbol, r.Key, valA, valB)
+	}
+
+	summary := Summarize(results)
+	fmt.Fprintf(w, "\n**Summary:** %d match, %d mismatch, %d missing\n",
+		summary.Matching, summary.Mismatched, summary.MissingInA+summary.MissingInB)
+}
