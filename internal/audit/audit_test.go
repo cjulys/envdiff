@@ -102,3 +102,29 @@ func TestLog_TimestampIsRecent(t *testing.T) {
 		t.Errorf("timestamp %v not in expected range [%v, %v]", ts, before, after)
 	}
 }
+
+func TestLog_RecordsFiles(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "audit.log")
+
+	files := []string{".env", ".env.prod"}
+	if err := audit.Log(path, files, sampleResults()); err != nil {
+		t.Fatalf("log: %v", err)
+	}
+
+	entries, err := audit.ReadAll(path)
+	if err != nil {
+		t.Fatalf("read all: %v", err)
+	}
+	if len(entries) == 0 {
+		t.Fatal("expected at least one entry")
+	}
+	if len(entries[0].Files) != len(files) {
+		t.Fatalf("expected %d files, got %d", len(files), len(entries[0].Files))
+	}
+	for i, f := range files {
+		if entries[0].Files[i] != f {
+			t.Errorf("expected file %q at index %d, got %q", f, i, entries[0].Files[i])
+		}
+	}
+}
