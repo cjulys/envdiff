@@ -48,6 +48,21 @@ func (r *Resolver) ExpandAll() map[string]string {
 	return out
 }
 
+// Lookup resolves a single variable name using the resolver's lookup order:
+// first the env map, then the process environment (if useSys is true).
+// The second return value reports whether the variable was found.
+func (r *Resolver) Lookup(name string) (string, bool) {
+	if v, ok := r.env[name]; ok {
+		return v, true
+	}
+	if r.useSys {
+		if v, ok := os.LookupEnv(name); ok {
+			return v, true
+		}
+	}
+	return "", false
+}
+
 // extractName pulls the variable name out of a $VAR or ${VAR} token.
 func extractName(token string) string {
 	token = strings.TrimPrefix(token, "$")
