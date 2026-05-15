@@ -89,3 +89,14 @@ func TestWritePretty_ColorEnabled(t *testing.T) {
 		t.Error("expected ANSI escape codes when Color is true")
 	}
 }
+
+func TestWritePretty_EmptyResults(t *testing.T) {
+	var sb strings.Builder
+	WritePretty(&sb, []Result{}, "a.env", "b.env", FormatOptions{Color: false, Verbose: false})
+	out := sb.String()
+
+	// Even with no results, the header with file names should still appear.
+	if !strings.Contains(out, "a.env") || !strings.Contains(out, "b.env") {
+		t.Error("expected file names in output even when results are empty")
+	}
+}
