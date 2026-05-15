@@ -73,3 +73,17 @@ func TestRunContext_VerboseOption_ShowsValues(t *testing.T) {
 		t.Errorf("expected value in verbose output, got: %s", out)
 	}
 }
+
+func TestRunContext_EmptyEnvs_NoDifferences(t *testing.T) {
+	envA := map[string]string{}
+	envB := map[string]string{}
+
+	var buf bytes.Buffer
+	hasProblems, err := RunContext(&buf, envA, envB, DefaultContextOptions())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if hasProblems {
+		t.Error("expected no problems for two empty envs")
+	}
+}
