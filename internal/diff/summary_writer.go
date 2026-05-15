@@ -33,3 +33,11 @@ func WriteSummaryTable(w io.Writer, s Stats, label string) {
 		fmt.Fprintln(w, "No problems found.")
 	}
 }
+
+// WriteSummaryLine writes a compact single-line summary of Stats to w.
+// It is useful for logging or brief status output.
+// Example output: "total=10 matched=8 missing=1 mismatch=1 problems=2"
+func WriteSummaryLine(w io.Writer, s Stats) {
+	fmt.Fprintf(w, "total=%d matched=%d missing=%d mismatch=%d problems=%d\n",
+		s.Total, s.Matched, s.Missing, s.Mismatch, s.ProblemCount())
+}
